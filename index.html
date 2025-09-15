@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Three.js FPS</title>
+<title>Three.js FPS GitHub Friendly</title>
 <style>
-  body { margin:0; overflow:hidden; background: #222; }
+  body { margin:0; overflow:hidden; background:#222; }
   canvas { display:block; }
   #crosshair {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 4px;
-    height: 4px;
-    margin-left: -2px;
-    margin-top: -2px;
-    background: white;
-    z-index: 10;
+    top:50%;
+    left:50%;
+    width:4px;
+    height:4px;
+    margin-left:-2px;
+    margin-top:-2px;
+    background:white;
+    z-index:10;
   }
   #instructions {
-    position: absolute;
+    position:absolute;
     top:50%;
     left:50%;
     transform: translate(-50%, -50%);
     color:white;
-    font-family: Arial, sans-serif;
+    font-family:Arial,sans-serif;
     font-size:20px;
     text-align:center;
     cursor:pointer;
@@ -33,11 +33,13 @@
 </head>
 <body>
 <div id="crosshair"></div>
-<div id="instructions">Click to start</div>
+<div id="instructions">Click to Start</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/PointerLockControls.js"></script>
 <script>
+window.onload = function(){
+
 let camera, scene, renderer, controls;
 let moveForward=false, moveBackward=false, moveLeft=false, moveRight=false;
 let canJump=false;
@@ -55,7 +57,7 @@ function init(){
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-    // Lighting
+    // Lights
     const light = new THREE.HemisphereLight(0xffffff, 0x444444);
     light.position.set(0,20,0);
     scene.add(light);
@@ -76,10 +78,18 @@ function init(){
         objects.push(wall);
     }
 
-    addWall(0,2.5,-50,100,5,1,0xff0000); // back wall
-    addWall(0,2.5,50,100,5,1,0xffa500); // front wall
-    addWall(-50,2.5,0,1,5,100,0x0000ff); // left wall
-    addWall(50,2.5,0,1,5,100,0x800080); // right wall
+    addWall(0,2.5,-50,100,5,1,0xff0000);
+    addWall(0,2.5,50,100,5,1,0xffa500);
+    addWall(-50,2.5,0,1,5,100,0x0000ff);
+    addWall(50,2.5,0,1,5,100,0x800080);
+
+    // Add a central yellow block
+    const boxGeometry = new THREE.BoxGeometry(2,2,2);
+    const boxMaterial = new THREE.MeshPhongMaterial({color:0xffff00});
+    const box = new THREE.Mesh(boxGeometry, boxMaterial);
+    box.position.set(0,1,0); // sits on the floor
+    scene.add(box);
+    objects.push(box);
 
     // Renderer
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -87,11 +97,10 @@ function init(){
     document.body.appendChild(renderer.domElement);
 
     // Controls
-    controls = new THREE.PointerLockControls(camera, document.body);
+    controls = new THREE.PointerLockControls(camera, renderer.domElement);
 
     const instructions = document.getElementById('instructions');
     instructions.addEventListener('click', ()=> controls.lock());
-
     controls.addEventListener('lock', ()=>{ instructions.style.display='none'; });
     controls.addEventListener('unlock', ()=>{ instructions.style.display='block'; });
 
@@ -143,9 +152,10 @@ function onKeyUp(event){
 function animate(){
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
+
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
-    velocity.y -= 9.8 * 5.0 * delta; // gravity
+    velocity.y -= 9.8 * 5.0 * delta;
 
     direction.z = Number(moveForward) - Number(moveBackward);
     direction.x = Number(moveRight) - Number(moveLeft);
@@ -165,10 +175,10 @@ function animate(){
         canJump=true;
     }
 
-    // Simple wall collision
+    // Simple wall/block collisions
     objects.forEach(obj=>{
-        const box = new THREE.Box3().setFromObject(obj);
-        if(box.containsPoint(controls.getObject().position)){
+        const box3 = new THREE.Box3().setFromObject(obj);
+        if(box3.containsPoint(controls.getObject().position)){
             controls.getObject().position.y=1.5;
             velocity.x=0;
             velocity.z=0;
@@ -176,6 +186,7 @@ function animate(){
     });
 
     renderer.render(scene,camera);
+}
 }
 </script>
 </body>
