@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Three.js FPS GitHub Friendly</title>
+<title>Three.js FPS</title>
 <style>
   body { margin:0; overflow:hidden; background:#222; }
   canvas { display:block; }
@@ -18,22 +18,10 @@
     background:white;
     z-index:10;
   }
-  #instructions {
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform: translate(-50%, -50%);
-    color:white;
-    font-family:Arial,sans-serif;
-    font-size:20px;
-    text-align:center;
-    cursor:pointer;
-  }
 </style>
 </head>
 <body>
 <div id="crosshair"></div>
-<div id="instructions">Click to Start</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/PointerLockControls.js"></script>
@@ -70,7 +58,7 @@ function init(){
     scene.add(floor);
     objects.push(floor);
 
-    // Colored walls
+    // Walls
     function addWall(x,y,z,w,h,d,color){
         const wall = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshPhongMaterial({color: color}));
         wall.position.set(x,y,z);
@@ -83,11 +71,11 @@ function init(){
     addWall(-50,2.5,0,1,5,100,0x0000ff);
     addWall(50,2.5,0,1,5,100,0x800080);
 
-    // Add a central yellow block
+    // Central cube
     const boxGeometry = new THREE.BoxGeometry(2,2,2);
     const boxMaterial = new THREE.MeshPhongMaterial({color:0xffff00});
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
-    box.position.set(0,1,0); // sits on the floor
+    box.position.set(0,1,0);
     scene.add(box);
     objects.push(box);
 
@@ -98,13 +86,10 @@ function init(){
 
     // Controls
     controls = new THREE.PointerLockControls(camera, renderer.domElement);
-
-    const instructions = document.getElementById('instructions');
-    instructions.addEventListener('click', ()=> controls.lock());
-    controls.addEventListener('lock', ()=>{ instructions.style.display='none'; });
-    controls.addEventListener('unlock', ()=>{ instructions.style.display='block'; });
-
     scene.add(controls.getObject());
+
+    // Lock pointer on click anywhere
+    document.addEventListener('click', () => controls.lock());
 
     // Keyboard
     document.addEventListener('keydown', onKeyDown);
@@ -175,7 +160,7 @@ function animate(){
         canJump=true;
     }
 
-    // Simple wall/block collisions
+    // Simple collision
     objects.forEach(obj=>{
         const box3 = new THREE.Box3().setFromObject(obj);
         if(box3.containsPoint(controls.getObject().position)){
